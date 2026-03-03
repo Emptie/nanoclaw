@@ -24,6 +24,8 @@ RUN apt-get update && apt-get install -y \
     libxshmfence1 \
     curl \
     git \
+    unzip \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Set Chromium path for agent-browser
@@ -47,6 +49,10 @@ COPY agent-runner/ ./
 
 # Build TypeScript
 RUN npm run build
+
+# Copy Obsidian CLI client script
+COPY obsidian-client.sh /usr/local/bin/obsidian
+RUN chmod +x /usr/local/bin/obsidian
 
 # Create workspace directories
 RUN mkdir -p /workspace/group /workspace/global /workspace/extra /workspace/ipc/messages /workspace/ipc/tasks /workspace/ipc/input
