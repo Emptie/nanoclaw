@@ -55,11 +55,14 @@ export class LarkChannel implements Channel {
       appSecret: this.appSecret,
       loggerLevel: lark.LoggerLevel.debug,
       logger: {
-        error: (...msg: any[]) => logger.error({ larkSDK: true }, msg.join(' ')),
+        error: (...msg: any[]) =>
+          logger.error({ larkSDK: true }, msg.join(' ')),
         warn: (...msg: any[]) => logger.warn({ larkSDK: true }, msg.join(' ')),
         info: (...msg: any[]) => logger.info({ larkSDK: true }, msg.join(' ')),
-        debug: (...msg: any[]) => logger.debug({ larkSDK: true }, msg.join(' ')),
-        trace: (...msg: any[]) => logger.trace({ larkSDK: true }, msg.join(' ')),
+        debug: (...msg: any[]) =>
+          logger.debug({ larkSDK: true }, msg.join(' ')),
+        trace: (...msg: any[]) =>
+          logger.trace({ larkSDK: true }, msg.join(' ')),
       },
     });
 
@@ -68,16 +71,27 @@ export class LarkChannel implements Channel {
       encryptKey: this.encryptKey,
     }).register({
       'im.message.receive_v1': async (data) => {
-        logger.info({ eventType: 'im.message.receive_v1', chatId: data?.message?.chat_id }, 'Lark message event received');
+        logger.info(
+          {
+            eventType: 'im.message.receive_v1',
+            chatId: data?.message?.chat_id,
+          },
+          'Lark message event received',
+        );
         await this.handleMessageEvent(data);
       },
     });
 
     // Also register a catch-all handler for debugging
-    const originalInvoke = (eventDispatcher as any).invoke?.bind(eventDispatcher);
+    const originalInvoke = (eventDispatcher as any).invoke?.bind(
+      eventDispatcher,
+    );
     if (originalInvoke) {
       (eventDispatcher as any).invoke = async (data: any) => {
-        logger.debug({ eventType: data?.header?.event_type, schema: data?.schema }, 'Lark raw event');
+        logger.debug(
+          { eventType: data?.header?.event_type, schema: data?.schema },
+          'Lark raw event',
+        );
         return originalInvoke(data);
       };
     }
@@ -111,7 +125,9 @@ export class LarkChannel implements Channel {
         content = message.content || '';
       }
 
-      const timestamp = new Date(parseInt(message.create_time) || Date.now()).toISOString();
+      const timestamp = new Date(
+        parseInt(message.create_time) || Date.now(),
+      ).toISOString();
 
       // Get sender info
       const sender = message.sender?.sender_id?.open_id || '';
@@ -126,7 +142,8 @@ export class LarkChannel implements Channel {
       // Get chat info
       const chatInfo = message.chat_info;
       const chatName = chatInfo?.name || chatJid;
-      const isGroup = chatInfo?.chat_type === 'group' || message.chat_type === 'group';
+      const isGroup =
+        chatInfo?.chat_type === 'group' || message.chat_type === 'group';
 
       // Handle @mention conversion for group chats
       // Lark mentions are in format <at id="user_id">name</at>
@@ -134,13 +151,16 @@ export class LarkChannel implements Channel {
       const botMentioned = content.includes('<at id="');
 
       // Convert Lark mentions to trigger pattern format
-      let processedContent = content.replace(mentionPattern, (match: string, _name: string) => {
-        const idMatch = match.match(/id="([^"]+)"/);
-        if (idMatch && idMatch[1]) {
-          return `@${idMatch[1]}`;
-        }
-        return match;
-      });
+      let processedContent = content.replace(
+        mentionPattern,
+        (match: string, _name: string) => {
+          const idMatch = match.match(/id="([^"]+)"/);
+          if (idMatch && idMatch[1]) {
+            return `@${idMatch[1]}`;
+          }
+          return match;
+        },
+      );
 
       logger.info(
         { chatJid, sender: senderName, content: processedContent, isGroup },
@@ -157,7 +177,10 @@ export class LarkChannel implements Channel {
       }
 
       // Deliver the message
-      logger.info({ chatJid, content: processedContent }, 'Delivering Lark message to router');
+      logger.info(
+        { chatJid, content: processedContent },
+        'Delivering Lark message to router',
+      );
       try {
         this.opts.onMessage(chatJid, {
           id: msgId,
@@ -199,10 +222,15 @@ export class LarkChannel implements Channel {
       });
 
       if (response.code !== 0) {
-        throw new Error(`Lark API error: ${response.msg} (code: ${response.code})`);
+        throw new Error(
+          `Lark API error: ${response.msg} (code: ${response.code})`,
+        );
       }
 
-      logger.info({ chatId, messageId: response.data?.message_id }, 'Lark message sent');
+      logger.info(
+        { chatId, messageId: response.data?.message_id },
+        'Lark message sent',
+      );
     } catch (err) {
       logger.error({ err, chatId }, 'Failed to send Lark message');
       throw err;
@@ -229,13 +257,19 @@ export class LarkChannel implements Channel {
 
 // Self-registration with the channel registry
 registerChannel('lark', (opts: ChannelOpts) => {
-  const envVars = readEnvFile(['LARK_APP_ID', 'LARK_APP_SECRET', 'LARK_ENCRYPT_KEY']);
+  const envVars = readEnvFile([
+    'LARK_APP_ID',
+    'LARK_APP_SECRET',
+    'LARK_ENCRYPT_KEY',
+  ]);
   const appId = process.env.LARK_APP_ID || envVars.LARK_APP_ID;
   const appSecret = process.env.LARK_APP_SECRET || envVars.LARK_APP_SECRET;
   const encryptKey = process.env.LARK_ENCRYPT_KEY || envVars.LARK_ENCRYPT_KEY;
 
   if (!appId || !appSecret) {
-    logger.debug('LARK_APP_ID or LARK_APP_SECRET not set, skipping Lark channel');
+    logger.debug(
+      'LARK_APP_ID or LARK_APP_SECRET not set, skipping Lark channel',
+    );
     return null;
   }
 

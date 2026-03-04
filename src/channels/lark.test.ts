@@ -1,5 +1,17 @@
-import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
-import type { OnInboundMessage, OnChatMetadata, RegisteredGroup } from '../types.js';
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type Mock,
+} from 'vitest';
+import type {
+  OnInboundMessage,
+  OnChatMetadata,
+  RegisteredGroup,
+} from '../types.js';
 
 // Mock the logger
 vi.mock('../logger.js', () => ({
@@ -24,7 +36,9 @@ vi.mock('../config.js', () => ({
 
 // Create mock implementations
 const mockStart = vi.fn().mockResolvedValue(undefined);
-const mockCreate = vi.fn().mockResolvedValue({ code: 0, data: { message_id: 'msg_123' } });
+const mockCreate = vi
+  .fn()
+  .mockResolvedValue({ code: 0, data: { message_id: 'msg_123' } });
 const mockRegister = vi.fn().mockReturnThis();
 
 // Mock lark SDK with proper constructors
@@ -53,7 +67,9 @@ const { LarkChannel } = await import('./lark.js');
 describe('LarkChannel', () => {
   const mockOnMessage = vi.fn() as unknown as Mock<OnInboundMessage>;
   const mockOnChatMetadata = vi.fn() as unknown as Mock<OnChatMetadata>;
-  const mockRegisteredGroups = vi.fn().mockReturnValue({}) as unknown as () => Record<string, RegisteredGroup>;
+  const mockRegisteredGroups = vi
+    .fn()
+    .mockReturnValue({}) as unknown as () => Record<string, RegisteredGroup>;
 
   const defaultConfig = {
     appId: 'test_app_id',
