@@ -3,6 +3,9 @@
 
 // discord
 
+// feishu/lark
+import './lark.js';
+
 // gmail
 
 // slack
