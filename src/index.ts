@@ -453,10 +453,10 @@ async function main(): Promise<void> {
   logger.info('Database initialized');
   loadState();
 
-  // Register Feishu p2p chat (single chat, no trigger needed)
+  // Register Feishu main chat
   registerGroup('lark:oc_bc1d0771ae7cc914baff09cc528e2c8d', {
-    name: '飞书单聊',
-    folder: 'feishu_p2p',
+    name: 'Feishu Main',
+    folder: 'feishu-main',
     trigger: '',
     added_at: new Date().toISOString(),
     requiresTrigger: false,
