@@ -59,6 +59,12 @@ vi.mock('@larksuiteoapi/node-sdk', () => ({
   AppType: {
     SelfBuild: 0,
   },
+  LoggerLevel: {
+    debug: 'debug',
+    info: 'info',
+    warn: 'warn',
+    error: 'error',
+  },
 }));
 
 // Import after mocks
